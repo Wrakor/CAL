@@ -1,0 +1,10 @@
+Vertex:
+1 cenas e coisas
+3 pois
+4 a tua mae
+2 de quatro
+Edge:
+1 -> 2
+1 -> 3
+2 -> 4
+3 -> 4
