@@ -7,6 +7,7 @@
 #include <list>
 #include <limits>
 #include <cmath>
+#include <stack>
 
 using namespace std;
 
@@ -32,6 +33,9 @@ class Vertex {
 	int indegree;
 	int dist;
 	bool done;
+	/////////
+	int index;
+	int lowlink;
 public:
 
 	Vertex(T in);
@@ -81,7 +85,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 //atualizado pelo exercício 5
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0) {
+Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0),index(0),lowlink(0) {
 	path = NULL;
 }
 
@@ -157,9 +161,18 @@ class Graph {
 
 	//exercicio 5
 	int numCycles;
+
 	void dfsVisit(Vertex<T> *v);
 	void dfsVisit();
 	void getPathTo(Vertex<T> *origin, list<T> &res);
+
+
+	vector< Vertex<T>* > vertexaux;
+	int index;
+	stack<Vertex<T>* > pilha;
+
+
+
 
 public:
 	bool addVertex(const T &in);
@@ -183,10 +196,176 @@ public:
 	void unweightedShortestPath(const T &v);
 	bool isDAG();
 
+
+	//projecto
 	vector< Vertex<T>* > order();
-	//vector<Vertex<T>*> noDependencies();
+	vector<vector< Vertex<T>* >> cycle();
+	vector< Vertex<T>* > strongconnect(Vertex<T> *v);
+
+
 
 };
+
+template<class T>
+vector<vector< Vertex<T>* >> Graph<T>::cycle(){
+
+
+
+	vector<vector< Vertex<T>* >> ciclos;
+	vector< Vertex<T>* > ciclo;
+	stack<Vertex<T>* > pilha;
+
+	for(int i=0; i<getNumVertex();i++){
+		getVertexSet()[i]->visited= false;
+
+	}
+
+	for(int i=0; i<getNumVertex();i++){
+
+		if(!getVertexSet()[i]->visited){
+			ciclo = strongconnect(getVertexSet()[i]);
+			if(!ciclo.empty()){
+				ciclos.push_back(ciclo);
+			}
+
+		}
+
+
+	}
+
+
+
+
+
+	/*
+	vector<Vertex<T> *> ciclo;
+
+
+	index=1;
+
+	for(int i=0; i<getNumVertex();i++){
+		if(getVertexSet()[i]->index==0){
+
+			ciclo= strongconnect(getVertexSet()[i]);
+			ciclos.push_back(ciclo);
+
+		}
+	}
+
+	cout << "Ciclos \n\n";
+	for(int i=0; i<ciclos.size();i++){
+		cout <<endl;
+
+		for(int j=0; j<ciclos[i].size();j++){
+
+			cout <<ciclos[i][j]->getInfo().getName()<<endl;
+		}
+	}
+	 */
+
+	return ciclos;
+
+}
+
+template<class T>
+vector< Vertex<T>* > Graph<T>::strongconnect(Vertex<T> *v){
+
+
+	vector< Vertex<T>* > ciclo;
+
+
+
+	v->visited=true;
+
+	cout <<"V: "<<v->getInfo().getName()<<"-- pilha.size :"<< pilha.size()<<endl;
+
+	for(int i=0;i<v->adj.size();i++){
+
+		if(!v->adj[i].dest->visited){
+			pilha.push(v);
+			strongconnect(v->adj[i].dest);
+
+		}else{
+			Vertex<T> * top;
+			top= pilha.top();
+			cout <<"teste"<<top->getInfo().getName()<<endl;
+			cout <<"size:" <<pilha.size()<<endl;
+			ciclo.push_back(v);
+
+			while(v->adj[i].dest != top){
+				cout <<"v: "<< v->getInfo().getName()<< "-----" <<"top: "<< top->getInfo().getName()<<endl;
+				ciclo.push_back(top);
+				pilha.pop();
+				top= pilha.top();
+				cout <<"TOP:"<< top->getInfo().getName()<<endl;
+			}
+			ciclo.push_back(v->adj[i].dest);
+			cout <<"aqui"<< v->getInfo().getName()<<endl;
+
+		}
+
+	}
+
+
+
+
+
+
+	/*
+	v->index=index;
+	v->lowlink=index;
+
+
+	index++;
+	cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
+
+	for(int i=0; i<v->adj.size();i++){
+
+		if(v->adj[i].dest->index==0){
+
+			cout<<"Index: "<<index<<endl;
+			strongconnect(v->adj[i].dest);
+
+
+			if(v->lowlink > v->adj[i].dest->lowlink  ){
+
+				v->lowlink=v->adj[i].dest->lowlink;
+
+				cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
+
+			}
+
+		}else{
+
+			if(v->lowlink > v->adj[i].dest->index){
+				v->lowlink=v->adj[i].dest->index;
+				cout <<"Dest: "<<  v->adj[i].dest->getInfo().getName()<<endl;
+				cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
+			}
+		}
+	}
+
+	for(int i=0; i<getNumVertex();i++){
+
+		if(getVertexSet()[i]->lowlink==v->lowlink){
+
+			ciclo.push_back(getVertexSet()[i]);
+			cout << getVertexSet()[i]->getInfo().getName()<< " adicionado ao ciclo\n";
+		}
+	}
+
+	 */
+	cout<<endl;
+
+	for(int i=0; i< ciclo.size();i++){
+		cout<< ciclo[i]->getInfo().getName()<<endl;
+	}
+	cout<< endl;
+	return ciclo;
+
+}
+
+
 
 
 template<class T>
@@ -281,6 +460,7 @@ int Graph<T>::getNumCycles() {
 	dfsVisit();
 	return this->numCycles;
 }
+
 
 template <class T>
 bool Graph<T>::isDAG() {

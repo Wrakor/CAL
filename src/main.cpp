@@ -86,6 +86,21 @@ int main (){
 	Graph<Tarefa> graph;
 	readGraph(graph);
 
+	vector<vector<Vertex<Tarefa>*>> ciclos;
+
+	ciclos= graph.cycle();
+
+
+
+	for(int i=0; i<ciclos.size();i++){
+		for(int j=0; j<ciclos[i].size();j++){
+			cout <<ciclos[i][j]->getInfo().getName()<<endl;
+
+		}
+	}
+
+
+	/*
 	vector< Vertex<Tarefa>* > ciclo = graph.order();
 
 	cout << "Ordenacao das tarefas:" << endl;
@@ -93,6 +108,6 @@ int main (){
 	{
 		cout << i+1 << " - " << ciclo[i]->getInfo().getName() << endl;
 	}
-
+	 */
 	return 0;
 }
