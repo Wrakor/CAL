@@ -83,33 +83,18 @@ void readGraph(Graph<Tarefa> &graph){
 int main (){
 	Graph<Tarefa> graph;
 
-
 	readGraph(graph);
-
-
-	//vector<vector<Vertex<Tarefa>*> > ciclos;
-
-
-	//graph.cycle();
-
-
-	for(int i=0; i<graph.ciclos.size();i++){
-		cout<<endl;
-		for(int j=0; j<graph.ciclos[i].size();j++){
-			cout <<graph.ciclos[i][j]->getInfo().getName()<<endl;
-
-		}
-	}
+	graph.findCycles();
 	graph.unifyCycles();
 
-	/*
-	vector< Vertex<Tarefa>* > ciclo = graph.order();
+	vector< Vertex<Tarefa>* > tarefas = graph.order();
 
-	cout << "Ordenacao das tarefas:" << endl;
-	for (unsigned int i = 0; i < ciclo.size(); i++)
+	cout << endl << "Ordenacao das tarefas:" << endl;
+
+	for (unsigned int i = 0; i < tarefas.size(); i++)
 	{
-		cout << i+1 << " - " << ciclo[i]->getInfo().getName() << endl;
+		cout << i+1 << " - " << tarefas[i]->getInfo().getName() << endl;
 	}
-	 */
+
 	return 0;
 }

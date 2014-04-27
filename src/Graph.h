@@ -1,4 +1,14 @@
+/* Lista de funcoes adicionadas para o projecto:
+Vertex:
+- void appendAdj(vector<Edge<T> > vec);
+- vector<Edge<T> > getAdj();
 
+Graph:
+- vector< Vertex<T>* > order();
+- void findCycles();
+- void unifyCycles();
+- void strongConnect(Vertex<T> *v);
+ */
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
@@ -30,17 +40,12 @@ template <class T>
 class Vertex {
 	T info;
 	vector<Edge<T>  > adj;
-	bool visited;
-	bool processing;
-	bool instack;
-	int indegree;
-	int dist;
-	bool done;
-	/////////
-	int index;
-	int lowlink;
-public:
 
+	//instack - booleano utilizado na funcao findCycles() que e true quando o vertice e adicionado a pilha
+	//done - booleano utlizado na funcao order() que verifica se ja foi processado o vertice
+	bool visited, processing, instack, done;
+	int indegree, dist;
+public:
 	Vertex(T in);
 	friend class Graph<T>;
 
@@ -50,12 +55,12 @@ public:
 
 	T getInfo() const;
 	void setInfo(T info);
+
+	// Recebe um vector de arestas e acrescenta-o ao vector de adjacencias
 	void appendAdj(vector<Edge<T> > vec);
 	vector<Edge<T> > getAdj();
 	int getDist() const;
 	int getIndegree() const;
-
-
 	Vertex* path;
 };
 
@@ -68,6 +73,15 @@ vector<Edge<T> > Vertex<T>::getAdj()
 template <class T>
 void Vertex<T>::appendAdj(vector<Edge<T> > vec) {
 	adj.insert(adj.begin(), vec.begin(), vec.end());
+
+	for (int i = 0; i < adj.size(); i++)
+	{
+		if (adj[i].dest->getInfo() == info)
+		{
+			adj.erase(adj.begin()+i);
+		}
+
+	}
 }
 
 template <class T>
@@ -100,7 +114,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 //atualizado pelo exercício 5
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false),done(false), processing(false), indegree(0), dist(0),index(0),lowlink(0),instack(false) {
+Vertex<T>::Vertex(T in): info(in), visited(false),done(false), processing(false), indegree(0), dist(0),instack(false) {
 	path = NULL;
 }
 
@@ -174,20 +188,16 @@ class Graph {
 	vector<Vertex<T> *> vertexSet;
 	void dfs(Vertex<T> *v, vector<T> &res) const;
 
-	//exercicio 5
+	//usado na funcao findCycles()
+	vector<vector<Vertex<T>* > > cycles;
 	int numCycles;
 
 	void dfsVisit(Vertex<T> *v);
 	void dfsVisit();
 	void getPathTo(Vertex<T> *origin, list<T> &res);
 
-
 	int index;
 	stack<Vertex<T>* > pilha;
-
-
-
-
 
 public:
 	bool addVertex(const T &in);
@@ -211,52 +221,50 @@ public:
 	void unweightedShortestPath(const T &v);
 	bool isDAG();
 
-
-	//projecto
-	vector<vector<Vertex<T>* > > ciclos;
+	//retorna um vector ordenado de tarefas por dependencias e prioridades
 	vector< Vertex<T>* > order();
-	void cycle();
-	void strongconnect(Vertex<T> *v);
+	//encontra os ciclos existentes no grafo e guarda-os em cycles
+	void findCycles();
+	//trata de unificar os vertices dos ciclos num so com a media das prioridades
 	void unifyCycles();
-
-
-
+	//funcao auxiliar do findCycles
+	void strongConnect(Vertex<T> *v);
 };
 
 template<class T>
 void Graph<T>::unifyCycles(){
 
-	for (int i = 0; i < ciclos.size(); i++)
+	for (int i = 0; i < cycles.size(); i++)
 	{
 		double priority = 0;
+		stringstream name;
+		name << "{ ";
 
-		for (int j = 0; j < ciclos[i].size(); j++)
+		for (int j = 0; j < cycles[i].size(); j++)
 		{
-			priority += ciclos[i][j]->getInfo().getPriority();
+			priority += cycles[i][j]->getInfo().getPriority();
+			name << cycles[i][j]->getInfo().getName() << " ";
 
-			if (j > 0)
+			//o ultimo vertice vai ser o que é mantido, pelo que se nao for o ultimo vertice, é eliminado
+			if (j < cycles[i].size()-1)
 			{
-				ciclos[i][0]->appendAdj(ciclos[i][j]->getAdj());
-				removeVertex(ciclos[i][j]->getInfo());
+				cycles[i][cycles[i].size()-1]->appendAdj(cycles[i][j]->getAdj()); //adiciona as adjacencias do vertice a ser processado ao ultimo vertice
+				removeVertex(cycles[i][j]->getInfo());
 			}
 		}
 
-		priority = priority/ciclos[i].size();
+		priority = priority/cycles[i].size();
 		round(priority);
+		name << "}";
 
-		stringstream name;
-		name << "Nova Tarefa ";
-		name << i;
 		Tarefa t(int(priority), name.str());
-		ciclos[i][0]->setInfo(t);
-
+		cycles[i][cycles[i].size()-1]->setInfo(t);
 	}
 
 }
 
 template<class T>
-void Graph<T>::cycle(){
-
+void Graph<T>::findCycles(){
 
 	pilha = stack<Vertex<T>* >();
 
@@ -264,120 +272,76 @@ void Graph<T>::cycle(){
 		pilha.pop();
 	}
 
-
 	for(int i=0; i< getNumVertex();i++){
 		getVertexSet()[i]->visited = false;
 		getVertexSet()[i]->instack = false;
 	}
 
-	for(int i=0; i< getNumVertex();i++){
-
-		strongconnect(getVertexSet()[i]);
-
-	}
-
-
-
+	for(int i=0; i< getNumVertex();i++)
+		strongConnect(getVertexSet()[i]);
 }
 
 template<class T>
-void Graph<T>::strongconnect(Vertex<T> *v){
-
+void Graph<T>::strongConnect(Vertex<T> *v){
+	cout << endl;
 	stack<Vertex<T>* > pilha2 = stack<Vertex<T>* >();
-
-	vector<Vertex<T> *> ciclo;
-
-
-
+	vector<Vertex<T> *> cycle;
 
 	if(!v->visited){
 
-		cout <<v->getInfo().getName()<<" :"<< "not visited\n";
+		cout << v->getInfo().getName()<<" :"<< "not visited\n";
 		pilha.push(v);
-		cout <<v->getInfo().getName() << " adicionado à pilha\n";
+
 		v->instack=true;
 		v->visited=true;
 
-		for(int i=0; i<v->adj.size();i++){
-			strongconnect(v->adj[i].dest);
-		}
-
+		for(int i=0; i<v->adj.size();i++)
+			strongConnect(v->adj[i].dest);
 
 		if (v==pilha.top()){
-			cout << v->getInfo().getName() << " retirado da pilha e terminou\n";
-			getVertex(pilha.top()->getInfo())->instack=false;
+			pilha.top()->instack=false;
 			pilha.pop();
 			v->instack=false;
 		}
-		else{
-			cout <<"Mau pop na "<< v->getInfo().getName()<<", terminou"<<endl;
-		}
-		//cout << "um" << pilha.size() << endl;
 	}
-	else if(!v->instack){
-
-		cout <<v->getInfo().getName()<<" :"<< "visited/ not instack\n";
-
-
-	}
+	else if(!v->instack)
+		cout << v->getInfo().getName() <<" :" << "visited/ not instack\n";
 	else{
-		cout <<v->getInfo().getName()<<" :"<< "visited/ instack\n";
+		cout << v->getInfo().getName() <<" :" << "visited/ instack\n";
+
 		if (pilha.empty())
 			cout << "vazio" << endl;
 		else
 		{
-
-
 			while (v!=pilha.top())
 			{
-
-
-				//cout << getVertex(pilha.top()->getInfo()).getName() << endl;
-
-
 				if (pilha.size() > 1){
-					ciclo.push_back(pilha.top());
-					cout << pilha.top()->getInfo().getName()<< " adicionado a ciclo\n";
+					cycle.push_back(pilha.top());
 					getVertex(pilha.top()->getInfo())->instack=false;
-					cout << pilha.top()->getInfo().getName() << " retirado da pilha\n" << endl;
 					pilha2.push(pilha.top());
-					cout << pilha.top()->getInfo().getName() <<" adicionado à fila\n";
 					pilha.pop();
-
 				}
 				else
 					break;
 			}
 			while(!pilha2.empty()){
 				pilha.push(pilha2.top());
-				cout << pilha2.top()->getInfo().getName()<< "adicionado novamente à pilha e retirado da pilha2\n";
+				pilha2.top()->instack=false;
 				pilha2.pop();
 			}
 
+			cycle.push_back(v);
+			cycles.push_back(cycle);
 
-			ciclo.push_back(v);
-			cout << v->getInfo().getName()<< "adicionado a ciclo\n";
-			ciclos.push_back(ciclo);
-			cout << "Ciclo Terminado"<<endl;
+			cout << "\n----------------";
+			cout << "\nCiclo encontrado:\n-";
+			for (int i = 0; i < cycle.size(); i++)
+				cout << " " << cycle[i]->getInfo().getName();
+			cout << endl;
+			cout << "----------------" << endl;
 		}
-		/*
-		cout << "visited/instack\n";
-		cout << "Pilha size: "<<pilha.size()<<endl;
-		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		pilha.pop();
-		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		pilha.pop();
-		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		pilha.pop();
-		 */
 	}
-
-
-
 }
-
-
-
 
 template<class T>
 vector< Vertex<T>* > Graph<T>::order(){
