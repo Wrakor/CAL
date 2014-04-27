@@ -84,15 +84,20 @@ void readGraph(Graph<Tarefa> &graph){
 
 int main (){
 	Graph<Tarefa> graph;
+
+
 	readGraph(graph);
+
 
 	vector<vector<Vertex<Tarefa>*>> ciclos;
 
-	ciclos= graph.cycle();
+
+	graph.cycle();
 
 
 
 	for(int i=0; i<ciclos.size();i++){
+		cout<<endl;
 		for(int j=0; j<ciclos[i].size();j++){
 			cout <<ciclos[i][j]->getInfo().getName()<<endl;
 

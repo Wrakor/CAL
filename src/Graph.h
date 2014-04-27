@@ -30,6 +30,7 @@ class Vertex {
 	vector<Edge<T>  > adj;
 	bool visited;
 	bool processing;
+	bool instack;
 	int indegree;
 	int dist;
 	bool done;
@@ -85,7 +86,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 //atualizado pelo exercício 5
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0),index(0),lowlink(0) {
+Vertex<T>::Vertex(T in): info(in), visited(false),done(false), processing(false), indegree(0), dist(0),index(0),lowlink(0),instack(false) {
 	path = NULL;
 }
 
@@ -167,9 +168,9 @@ class Graph {
 	void getPathTo(Vertex<T> *origin, list<T> &res);
 
 
-	vector< Vertex<T>* > vertexaux;
 	int index;
 	stack<Vertex<T>* > pilha;
+	vector<vector< Vertex<T>* >> ciclos;
 
 
 
@@ -199,169 +200,93 @@ public:
 
 	//projecto
 	vector< Vertex<T>* > order();
-	vector<vector< Vertex<T>* >> cycle();
-	vector< Vertex<T>* > strongconnect(Vertex<T> *v);
+	void cycle();
+	void strongconnect(Vertex<T> *v);
 
 
 
 };
 
 template<class T>
-vector<vector< Vertex<T>* >> Graph<T>::cycle(){
+void Graph<T>::cycle(){
 
 
+	 pilha = stack<Vertex<T>* >();
 
-	vector<vector< Vertex<T>* >> ciclos;
-	vector< Vertex<T>* > ciclo;
-	stack<Vertex<T>* > pilha;
-
-	for(int i=0; i<getNumVertex();i++){
-		getVertexSet()[i]->visited= false;
-
+	while(!pilha.empty()){
+		pilha.pop();
 	}
 
-	for(int i=0; i<getNumVertex();i++){
 
-		if(!getVertexSet()[i]->visited){
-			ciclo = strongconnect(getVertexSet()[i]);
-			if(!ciclo.empty()){
-				ciclos.push_back(ciclo);
-			}
+	for(int i=0; i< getNumVertex();i++){
+		getVertexSet()[i]->visited = false;
+		getVertexSet()[i]->instack = false;
+	}
 
-		}
+	for(int i=0; i< getNumVertex();i++){
 
+		strongconnect(getVertexSet()[i]);
 
 	}
 
 
-
-
-
-	/*
-	vector<Vertex<T> *> ciclo;
-
-
-	index=1;
-
-	for(int i=0; i<getNumVertex();i++){
-		if(getVertexSet()[i]->index==0){
-
-			ciclo= strongconnect(getVertexSet()[i]);
-			ciclos.push_back(ciclo);
-
-		}
-	}
-
-	cout << "Ciclos \n\n";
-	for(int i=0; i<ciclos.size();i++){
-		cout <<endl;
-
-		for(int j=0; j<ciclos[i].size();j++){
-
-			cout <<ciclos[i][j]->getInfo().getName()<<endl;
-		}
-	}
-	 */
-
-	return ciclos;
 
 }
 
 template<class T>
-vector< Vertex<T>* > Graph<T>::strongconnect(Vertex<T> *v){
-
-
-	vector< Vertex<T>* > ciclo;
+void Graph<T>::strongconnect(Vertex<T> *v){
 
 
 
-	v->visited=true;
+	vector<Vertex<T> *> ciclo;
 
-	cout <<"V: "<<v->getInfo().getName()<<"-- pilha.size :"<< pilha.size()<<endl;
+	cout<<v->getInfo().getName()<<" :";
 
-	for(int i=0;i<v->adj.size();i++){
 
-		if(!v->adj[i].dest->visited){
-			pilha.push(v);
+	if(!v->visited){
+		cout << "not visited\n";
+		pilha.push(v);
+		cout <<v->getInfo().getName() << " adicionado à pilha\n";
+		v->instack=true;
+		v->visited=true;
+		for(int i=0; i<v->adj.size();i++){
 			strongconnect(v->adj[i].dest);
+		}
+		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+		pilha.pop();
+	}else if(!v->instack){
 
-		}else{
-			Vertex<T> * top;
-			top= pilha.top();
-			cout <<"teste"<<top->getInfo().getName()<<endl;
-			cout <<"size:" <<pilha.size()<<endl;
-			ciclo.push_back(v);
+		cout << "visited/ not instack\n";
 
-			while(v->adj[i].dest != top){
-				cout <<"v: "<< v->getInfo().getName()<< "-----" <<"top: "<< top->getInfo().getName()<<endl;
-				ciclo.push_back(top);
-				pilha.pop();
-				top= pilha.top();
-				cout <<"TOP:"<< top->getInfo().getName()<<endl;
-			}
-			ciclo.push_back(v->adj[i].dest);
-			cout <<"aqui"<< v->getInfo().getName()<<endl;
+		getVertex(pilha.top()->getInfo())->instack=false;
+		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+		//pilha.pop();
+	}else{
+		cout<<"AQUI: "<<pilha.top()->getInfo().getName()<<endl;
+		cout <<pilha.size()<<endl;
+		while(v!=pilha.top()){
+			cout << "visited/instack\n";
+			ciclo.push_back(pilha.top());
+			getVertex(pilha.top()->getInfo())->instack=false;
+			cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+			pilha.pop();
 
 		}
+		ciclos.push_back(ciclo);
+/*
+		cout << "visited/instack\n";
+		cout << "Pilha size: "<<pilha.size()<<endl;
+		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+		pilha.pop();
+		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+		pilha.pop();
+		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
+		pilha.pop();
+		*/
 
 	}
 
 
-
-
-
-
-	/*
-	v->index=index;
-	v->lowlink=index;
-
-
-	index++;
-	cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
-
-	for(int i=0; i<v->adj.size();i++){
-
-		if(v->adj[i].dest->index==0){
-
-			cout<<"Index: "<<index<<endl;
-			strongconnect(v->adj[i].dest);
-
-
-			if(v->lowlink > v->adj[i].dest->lowlink  ){
-
-				v->lowlink=v->adj[i].dest->lowlink;
-
-				cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
-
-			}
-
-		}else{
-
-			if(v->lowlink > v->adj[i].dest->index){
-				v->lowlink=v->adj[i].dest->index;
-				cout <<"Dest: "<<  v->adj[i].dest->getInfo().getName()<<endl;
-				cout << v->getInfo().getName()<<" ( "<< v->index << "," << v->lowlink << ")\n";
-			}
-		}
-	}
-
-	for(int i=0; i<getNumVertex();i++){
-
-		if(getVertexSet()[i]->lowlink==v->lowlink){
-
-			ciclo.push_back(getVertexSet()[i]);
-			cout << getVertexSet()[i]->getInfo().getName()<< " adicionado ao ciclo\n";
-		}
-	}
-
-	 */
-	cout<<endl;
-
-	for(int i=0; i< ciclo.size();i++){
-		cout<< ciclo[i]->getInfo().getName()<<endl;
-	}
-	cout<< endl;
-	return ciclo;
 
 }
 
@@ -393,7 +318,7 @@ vector< Vertex<T>* > Graph<T>::order(){
 		//encontra todos os vertices com dependências, que sao adicionados ao vector dep
 		for(int i=0; i<vertexSet.size();i++){
 			check=false;
-			//cout << "done:" << vertexSet[i]->done;
+
 			for(int j=0; j<vertexSet[i]->adj.size();j++){
 				check=false;
 				if(!vertexSet[i]->adj[j].dest->done){
@@ -404,11 +329,11 @@ vector< Vertex<T>* > Graph<T>::order(){
 						}
 					}
 				}
-				//cout << "check:" << check << endl;
+
 				if(!check && !vertexSet[i]->done){
 					dep.push_back(vertexSet[i]->adj[j].dest);
 				}
-				//cout << "dep size:" << dep.size() << endl;
+
 			}
 
 		}
@@ -434,7 +359,7 @@ vector< Vertex<T>* > Graph<T>::order(){
 		sort(nodep.begin(), nodep.end(),vertex_lesser_than<T>());
 		Vertex<T>* v;
 		v = nodep.back();
-		//cout << ((Tarefa )v->info).getName();
+
 		getVertex(v->getInfo())->done = true;
 		order.push_back(v);
 		nodep.pop_back();
