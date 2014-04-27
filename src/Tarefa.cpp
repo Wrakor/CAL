@@ -11,6 +11,11 @@ string Tarefa::getName()
 	return name;
 }
 
+int Tarefa::getPriority()
+{
+	return priority;
+}
+
 bool Tarefa::operator==(const Tarefa t)
 {
 	if(priority==t.priority&&name==t.name)

@@ -1,11 +1,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <sstream>
 #include <stdlib.h>
 
 #include "Graph.h"
-#include "Tarefa.h"
 using namespace std;
 
 void readGraph(Graph<Tarefa> &graph){
@@ -92,7 +90,7 @@ int main (){
 	//vector<vector<Vertex<Tarefa>*> > ciclos;
 
 
-	graph.cycle();
+	//graph.cycle();
 
 
 	for(int i=0; i<graph.ciclos.size();i++){
@@ -102,7 +100,7 @@ int main (){
 
 		}
 	}
-
+	graph.unifyCycles();
 
 	/*
 	vector< Vertex<Tarefa>* > ciclo = graph.order();

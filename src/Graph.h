@@ -8,6 +8,8 @@
 #include <limits>
 #include <cmath>
 #include <stack>
+#include <sstream>
+#include "Tarefa.h"
 
 using namespace std;
 
@@ -48,13 +50,25 @@ public:
 
 	T getInfo() const;
 	void setInfo(T info);
-
+	void appendAdj(vector<Edge<T> > vec);
+	vector<Edge<T> > getAdj();
 	int getDist() const;
 	int getIndegree() const;
+
 
 	Vertex* path;
 };
 
+template <class T>
+vector<Edge<T> > Vertex<T>::getAdj()
+{
+	return adj;
+}
+
+template <class T>
+void Vertex<T>::appendAdj(vector<Edge<T> > vec) {
+	adj.insert(adj.begin(), vec.begin(), vec.end());
+}
 
 template <class T>
 struct vertex_greater_than {
@@ -203,10 +217,42 @@ public:
 	vector< Vertex<T>* > order();
 	void cycle();
 	void strongconnect(Vertex<T> *v);
+	void unifyCycles();
 
 
 
 };
+
+template<class T>
+void Graph<T>::unifyCycles(){
+
+	for (int i = 0; i < ciclos.size(); i++)
+	{
+		double priority = 0;
+
+		for (int j = 0; j < ciclos[i].size(); j++)
+		{
+			priority += ciclos[i][j]->getInfo().getPriority();
+
+			if (j > 0)
+			{
+				ciclos[i][0]->appendAdj(ciclos[i][j]->getAdj());
+				removeVertex(ciclos[i][j]->getInfo());
+			}
+		}
+
+		priority = priority/ciclos[i].size();
+		round(priority);
+
+		stringstream name;
+		name << "Nova Tarefa ";
+		name << i;
+		Tarefa t(int(priority), name.str());
+		ciclos[i][0]->setInfo(t);
+
+	}
+
+}
 
 template<class T>
 void Graph<T>::cycle(){
