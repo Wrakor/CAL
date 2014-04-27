@@ -170,7 +170,7 @@ class Graph {
 
 	int index;
 	stack<Vertex<T>* > pilha;
-	vector<vector< Vertex<T>* >> ciclos;
+
 
 
 
@@ -196,7 +196,7 @@ public:
 	vector<T> getPath(const T &origin, const T &dest);
 	void unweightedShortestPath(const T &v);
 	bool isDAG();
-
+	vector<vector<Vertex<T>* > > ciclos;
 
 	//projecto
 	vector< Vertex<T>* > order();
@@ -211,7 +211,7 @@ template<class T>
 void Graph<T>::cycle(){
 
 
-	 pilha = stack<Vertex<T>* >();
+	pilha = stack<Vertex<T>* >();
 
 	while(!pilha.empty()){
 		pilha.pop();
@@ -224,19 +224,19 @@ void Graph<T>::cycle(){
 	}
 
 	for(int i=0; i< getNumVertex();i++){
-
+		cout << "cenas" << i << getNumVertex() << endl;
 		strongconnect(getVertexSet()[i]);
-
+		cout << "cenasfim" << endl;
 	}
 
 
-
+	cout << "cycle" << endl;
 }
 
 template<class T>
 void Graph<T>::strongconnect(Vertex<T> *v){
 
-
+	cout << "ENTROU" << endl;
 
 	vector<Vertex<T> *> ciclo;
 
@@ -244,36 +244,56 @@ void Graph<T>::strongconnect(Vertex<T> *v){
 
 
 	if(!v->visited){
+
 		cout << "not visited\n";
 		pilha.push(v);
 		cout <<v->getInfo().getName() << " adicionado à pilha\n";
 		v->instack=true;
 		v->visited=true;
+
 		for(int i=0; i<v->adj.size();i++){
 			strongconnect(v->adj[i].dest);
 		}
+
 		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		pilha.pop();
-	}else if(!v->instack){
+		if (v->instack)
+			pilha.pop();
+		//cout << "um" << pilha.size() << endl;
+	}
+	else if(!v->instack){
 
 		cout << "visited/ not instack\n";
 
 		getVertex(pilha.top()->getInfo())->instack=false;
 		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
 		//pilha.pop();
-	}else{
-		cout<<"AQUI: "<<pilha.top()->getInfo().getName()<<endl;
-		cout <<pilha.size()<<endl;
-		while(v!=pilha.top()){
-			cout << "visited/instack\n";
-			ciclo.push_back(pilha.top());
-			getVertex(pilha.top()->getInfo())->instack=false;
-			cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-			pilha.pop();
+	}
+	else{
+		if (pilha.empty())
+			cout << "vazio" << endl;
+		else
+		{
+			cout<<"AQUI: "<<pilha.top()->getInfo().getName()<<endl;
+			cout << v->getInfo().getName() << endl;
+			cout <<pilha.size()<<endl;
 
+			while (v!=pilha.top())
+			{
+				cout << "visited/instack\n";
+				ciclo.push_back(pilha.top());
+				getVertex(pilha.top()->getInfo())->instack=false;
+				cout << pilha.top()->getInfo().getName() << " retirado da pilha\n" << endl;
+				//cout << getVertex(pilha.top()->getInfo()).getName() << endl;
+
+				if (pilha.size() > 1)
+					pilha.pop();
+				else
+					break;
+			}
+			cout << "pilas" << endl;
+			ciclos.push_back(ciclo);
 		}
-		ciclos.push_back(ciclo);
-/*
+		/*
 		cout << "visited/instack\n";
 		cout << "Pilha size: "<<pilha.size()<<endl;
 		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
@@ -282,8 +302,7 @@ void Graph<T>::strongconnect(Vertex<T> *v){
 		pilha.pop();
 		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
 		pilha.pop();
-		*/
-
+		 */
 	}
 
 

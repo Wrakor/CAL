@@ -89,17 +89,16 @@ int main (){
 	readGraph(graph);
 
 
-	vector<vector<Vertex<Tarefa>*>> ciclos;
+	//vector<vector<Vertex<Tarefa>*> > ciclos;
 
 
 	graph.cycle();
 
 
-
-	for(int i=0; i<ciclos.size();i++){
+	for(int i=0; i<graph.ciclos.size();i++){
 		cout<<endl;
-		for(int j=0; j<ciclos[i].size();j++){
-			cout <<ciclos[i][j]->getInfo().getName()<<endl;
+		for(int j=0; j<graph.ciclos[i].size();j++){
+			cout <<graph.ciclos[i][j]->getInfo().getName()<<endl;
 
 		}
 	}
