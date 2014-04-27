@@ -196,9 +196,10 @@ public:
 	vector<T> getPath(const T &origin, const T &dest);
 	void unweightedShortestPath(const T &v);
 	bool isDAG();
-	vector<vector<Vertex<T>* > > ciclos;
+
 
 	//projecto
+	vector<vector<Vertex<T>* > > ciclos;
 	vector< Vertex<T>* > order();
 	void cycle();
 	void strongconnect(Vertex<T> *v);
@@ -224,28 +225,28 @@ void Graph<T>::cycle(){
 	}
 
 	for(int i=0; i< getNumVertex();i++){
-		cout << "cenas" << i << getNumVertex() << endl;
+
 		strongconnect(getVertexSet()[i]);
-		cout << "cenasfim" << endl;
+
 	}
 
 
-	cout << "cycle" << endl;
+
 }
 
 template<class T>
 void Graph<T>::strongconnect(Vertex<T> *v){
 
-	cout << "ENTROU" << endl;
+	stack<Vertex<T>* > pilha2 = stack<Vertex<T>* >();
 
 	vector<Vertex<T> *> ciclo;
 
-	cout<<v->getInfo().getName()<<" :";
+
 
 
 	if(!v->visited){
 
-		cout << "not visited\n";
+		cout <<v->getInfo().getName()<<" :"<< "not visited\n";
 		pilha.push(v);
 		cout <<v->getInfo().getName() << " adicionado à pilha\n";
 		v->instack=true;
@@ -255,43 +256,63 @@ void Graph<T>::strongconnect(Vertex<T> *v){
 			strongconnect(v->adj[i].dest);
 		}
 
-		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		if (v->instack)
+
+		if (v==pilha.top()){
+			cout << v->getInfo().getName() << " retirado da pilha e terminou\n";
+			getVertex(pilha.top()->getInfo())->instack=false;
 			pilha.pop();
+			v->instack=false;
+		}
+		else{
+			cout <<"Mau pop na "<< v->getInfo().getName()<<", terminou"<<endl;
+		}
 		//cout << "um" << pilha.size() << endl;
 	}
 	else if(!v->instack){
 
-		cout << "visited/ not instack\n";
+		cout <<v->getInfo().getName()<<" :"<< "visited/ not instack\n";
 
-		getVertex(pilha.top()->getInfo())->instack=false;
-		cout << pilha.top()->getInfo().getName() << " retirado da pilha\n";
-		//pilha.pop();
+
 	}
 	else{
+		cout <<v->getInfo().getName()<<" :"<< "visited/ instack\n";
 		if (pilha.empty())
 			cout << "vazio" << endl;
 		else
 		{
-			cout<<"AQUI: "<<pilha.top()->getInfo().getName()<<endl;
-			cout << v->getInfo().getName() << endl;
-			cout <<pilha.size()<<endl;
+
 
 			while (v!=pilha.top())
 			{
-				cout << "visited/instack\n";
-				ciclo.push_back(pilha.top());
-				getVertex(pilha.top()->getInfo())->instack=false;
-				cout << pilha.top()->getInfo().getName() << " retirado da pilha\n" << endl;
+
+
 				//cout << getVertex(pilha.top()->getInfo()).getName() << endl;
 
-				if (pilha.size() > 1)
+
+				if (pilha.size() > 1){
+					ciclo.push_back(pilha.top());
+					cout << pilha.top()->getInfo().getName()<< " adicionado a ciclo\n";
+					getVertex(pilha.top()->getInfo())->instack=false;
+					cout << pilha.top()->getInfo().getName() << " retirado da pilha\n" << endl;
+					pilha2.push(pilha.top());
+					cout << pilha.top()->getInfo().getName() <<" adicionado à fila\n";
 					pilha.pop();
+
+				}
 				else
 					break;
 			}
-			cout << "pilas" << endl;
+			while(!pilha2.empty()){
+				pilha.push(pilha2.top());
+				cout << pilha2.top()->getInfo().getName()<< "adicionado novamente à pilha e retirado da pilha2\n";
+				pilha2.pop();
+			}
+
+
+			ciclo.push_back(v);
+			cout << v->getInfo().getName()<< "adicionado a ciclo\n";
 			ciclos.push_back(ciclo);
+			cout << "Ciclo Terminado"<<endl;
 		}
 		/*
 		cout << "visited/instack\n";
