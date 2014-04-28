@@ -11,12 +11,14 @@ class Tarefa{
 	int priority;
 	string name;
 
+
 public:
 	Tarefa(int priority, string name);
 	string getName();
 	int getPriority();
 	bool operator==(const Tarefa t);
 	bool operator<(const Tarefa &t) const;
+
 };
 
 

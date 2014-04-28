@@ -2,6 +2,8 @@
 #include <string>
 #include <fstream>
 #include <stdlib.h>
+#include <sstream>
+#include "graphviewer.h"
 
 #include "Graph.h"
 using namespace std;
@@ -80,10 +82,48 @@ void readGraph(Graph<Tarefa> &graph){
 	file.close();
 }
 
+
+
+void drawGraph(Graph<Tarefa> graph)
+{
+	GraphViewer *gv = new GraphViewer(400, 400, true);
+
+	gv->createWindow(600, 600);
+
+	gv->defineEdgeColor("blue");
+	gv->defineVertexColor("yellow");
+
+	for(int i=0; i<graph.getNumVertex();i++){
+		gv->addNode(i+1);
+		gv->setVertexLabel(i+1,graph.getVertexSet()[i]->getInfo().getName());
+		graph.getVertexSet()[i]->setID(i+1);
+	}
+	int edge=0;
+
+	int id=0;
+	for(int i=0; i<graph.getNumVertex();i++){
+		for(unsigned int j=0;j<graph.getVertexSet()[i]->getAdj().size();j++){
+
+
+
+			id= graph.getVertexSet()[i]->getAdj()[j].getDest()->getID();
+
+			gv->addEdge(edge,i+1,id,EdgeType::DIRECTED);
+			edge++;
+		}
+	}
+
+	gv->rearrange();
+
+	cin.ignore();
+}
+
+
 int main (){
 	Graph<Tarefa> graph;
 
 	readGraph(graph);
+	drawGraph(graph);
 	graph.findCycles();
 	graph.unifyCycles();
 
@@ -98,3 +138,5 @@ int main (){
 
 	return 0;
 }
+
+

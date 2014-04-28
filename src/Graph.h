@@ -18,6 +18,7 @@ Graph:
 #include <limits>
 #include <cmath>
 #include <stack>
+#include <algorithm>
 #include <sstream>
 #include "Tarefa.h"
 
@@ -44,7 +45,7 @@ class Vertex {
 	//instack - booleano utilizado na funcao findCycles() que e true quando o vertice e adicionado a pilha
 	//done - booleano utlizado na funcao order() que verifica se ja foi processado o vertice
 	bool visited, processing, instack, done;
-	int indegree, dist;
+	int indegree, dist,id;
 public:
 	Vertex(T in);
 	friend class Graph<T>;
@@ -55,6 +56,13 @@ public:
 
 	T getInfo() const;
 	void setInfo(T info);
+
+	void setID(int id){
+		this->id=id;
+	}
+	int getID(){
+		return id;
+	}
 
 	// Recebe um vector de arestas e acrescenta-o ao vector de adjacencias
 	void appendAdj(vector<Edge<T> > vec);
@@ -114,7 +122,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 //atualizado pelo exercício 5
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false),done(false), processing(false), indegree(0), dist(0),instack(false) {
+Vertex<T>::Vertex(T in): info(in), visited(false),done(false), processing(false), indegree(0), dist(0),instack(false),id(0) {
 	path = NULL;
 }
 
@@ -169,6 +177,9 @@ public:
 	Edge(Vertex<T> *d);
 	friend class Graph<T>;
 	friend class Vertex<T>;
+	Vertex<T> * getDest(){
+		return dest;
+	}
 };
 
 template <class T>
@@ -254,7 +265,7 @@ void Graph<T>::unifyCycles(){
 		}
 
 		priority = priority/cycles[i].size();
-		round(priority);
+		priority= round(priority);
 		name << "}";
 
 		Tarefa t(int(priority), name.str());
