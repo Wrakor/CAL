@@ -7,14 +7,14 @@
 #include <vector>
 #include <time.h>
 #include <stdio.h>
-#include "tema.h"
+#include "theme.h"
 using namespace std;
 
-vector<Tema> readDictionary() {
+vector<Theme> readDictionary() {
 
 	ifstream file("dictionary.txt");
-	vector<Tema> temas;
-	string line, palavra, tema;
+	vector<Theme> themes;
+	string line, palavra, themeName;
 
 	if(file.is_open())
 	{
@@ -24,18 +24,18 @@ vector<Tema> readDictionary() {
 
 			while(!file.eof())
 			{
-				tema = line;
-				Tema aux = Tema(tema);
+				themeName = line;
+				Theme temp = Theme(themeName);
 
 				getline(file, line);
 
 				while(line != "")
 				{
 					palavra = line;
-					aux.addWords(palavra);
+					temp.addWord(palavra);
 					getline(file, line);
 				}
-				temas.push_back(aux);
+				themes.push_back(temp);
 
 				palavra = line;
 				break;
@@ -46,10 +46,10 @@ vector<Tema> readDictionary() {
 
 	file.close();
 
-	return temas;
+	return themes;
 }
 
-bool bot(string word, vector<Tema> dictionary, int index, int player) {
+bool bot(string word, vector<Theme> dictionary, int index, int player) {
 
 	bool win = false;
 	string tryWord, check[word.size()]; //tryWord - tentativa para adivinhar a palavra // check - guarda os resultado da tentativa com B, W ou _
@@ -86,7 +86,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 			//primeira tentativa é a primeira plavra que encontrar com o mesmo numero de letras
 			if (play == 1) {
 				for (size_t i = 0; i < dictionary[index].getWords().size(); i++) {
-					string temp = dictionary[index].getWords()[i].getNome();
+					string temp = dictionary[index].getWords()[i];
 
 					if (temp.size() == word.size()) {
 						tryWord = temp;
@@ -100,7 +100,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 			else {
 				//procurar palavras no dicionario tendo informacao da tentativa anterior (usando o check da iteracao anterior)
 				for (size_t i = 0; i < dictionary[index].getWords().size(); i++) {
-					string temp = dictionary[index].getWords()[i].getNome();
+					string temp = dictionary[index].getWords()[i];
 					bool valid = true;
 
 					//verifica se a palavra ja foi usada antes
@@ -143,7 +143,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 
 					if (valid) {
 						tryWord = temp;
-						cout << "Computador encontrou: " << att << endl;
+						cout << "Computador encontrou: " << tryWord << endl;
 						usedWords.push_back(temp);
 						break;
 					}
@@ -201,7 +201,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 
 								//senao existirem, entao a palavra a acertar nao tem esta letra, sendo adicionada ao respectivo vetor
 								if (!exists)
-									nonExistingLetters += att[j];
+									nonExistingLetters += check[j];
 							}
 						}
 					}
@@ -210,7 +210,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 
 			//print da jogada
 			for(size_t i = 0; i < tryWord.size(); i++){
-				cout << att[i] << " ";
+				cout << check[i] << " ";
 			}
 			cout<< endl;
 			for(size_t i = 0; i < word.size(); i++){
@@ -248,7 +248,7 @@ bool bot(string word, vector<Tema> dictionary, int index, int player) {
 
 int main()
 {
-	vector<Tema> dictionary = readDictionary();
+	vector<Theme> dictionary = readDictionary();
 	string palavra, gameMode, player;
 	int themeIndex, wordIndex, mode, playerNumber;
 	srand (time(NULL));
@@ -265,8 +265,8 @@ int main()
 	}
 
 	cout << "Escolha o modo de jogo\n";
-	cout << "	1-Tema aleatório\n";
-	cout << "	2-Tema surpresa\n";
+	cout << "	1-Theme aleatório\n";
+	cout << "	2-Theme surpresa\n";
 	cout << "	3-Escolher Tema\n";
 
 	cin >> gameMode;
@@ -283,13 +283,13 @@ int main()
 		wordIndex = rand() % dictionary[themeIndex].getWords().size();
 
 		cout << "Tema: " << dictionary[themeIndex].getName()<<endl;
-		palavra = dictionary[themeIndex].getWords()[wordIndex].getNome();
+		palavra = dictionary[themeIndex].getWords()[wordIndex];
 		break;
 
 	case 2:
 		themeIndex = rand() % dictionary.size();
 		wordIndex = rand() % dictionary[themeIndex].getWords().size();
-		palavra = dictionary[themeIndex].getWords()[wordIndex].getNome();
+		palavra = dictionary[themeIndex].getWords()[wordIndex];
 		break;
 
 	case 3:
@@ -308,7 +308,7 @@ int main()
 
 		wordIndex = rand() % dictionary[themeIndex].getWords().size();
 		cout << "Tema: " << dictionary[themeIndex].getName() << endl;
-		palavra = dictionary[themeIndex].getWords()[wordIndex].getNome();
+		palavra = dictionary[themeIndex].getWords()[wordIndex];
 
 		break;
 	}
