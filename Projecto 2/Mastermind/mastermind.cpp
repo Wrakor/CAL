@@ -49,9 +49,10 @@ vector<Theme> readDictionary() {
 	return themes;
 }
 
-bool play(string word, vector<Theme> dictionary, int index, int player) {
+bool play(string word, Theme theme, int player) {
 
 	bool win = false;
+	vector<string> dictionary = theme.getWords();
 	string tryWord, check[word.size()]; //tryWord - tentativa para adivinhar a palavra // check - guarda os resultado da tentativa com B, W ou _
 	int play = 1, matchingLetters = 0;  //play - numero da jogada, termina ao fim de 10 //match - numero de letras certas, termina quando for igual ao tamanho da palavra
 	map<char,int> letterCounter; //guarda a quantidade de cada letra. ex: canas - c=1; a=2 etc.
@@ -90,8 +91,8 @@ bool play(string word, vector<Theme> dictionary, int index, int player) {
 		else if (player == 2) { //computador
 			//primeira tentativa é a primeira plavra que encontrar com o mesmo numero de letras
 			if (play == 1) {
-				for (size_t i = 0; i < dictionary[index].getWords().size(); i++) {
-					string temp = dictionary[index].getWords()[i];
+				for (size_t i = 0; i < dictionary.size(); i++) {
+					string temp = dictionary[i];
 
 					if (temp.size() == word.size()) {
 						tryWord = temp;
@@ -100,12 +101,16 @@ bool play(string word, vector<Theme> dictionary, int index, int player) {
 						cout << "Computador encontrou: " << temp << endl << endl;
 						break;
 					}
+					else { //remover palavras que nao sao validas para acelerar a proxima pesquisa
+						//dictionary[index].getWords().erase(dictionary[index].getWords().begin()+i);
+						//i--;
+					}
 				}
 			}
 			else {
 				//procurar palavras no dicionario tendo informacao da tentativa anterior (usando o check da iteracao anterior)
-				for (size_t i = 0; i < dictionary[index].getWords().size(); i++) {
-					string temp = dictionary[index].getWords()[i];
+				for (size_t i = 0; i < dictionary.size(); i++) {
+					string temp = dictionary[i];
 					bool valid = true;
 
 					//verifica se a palavra ja foi usada antes
@@ -152,6 +157,11 @@ bool play(string word, vector<Theme> dictionary, int index, int player) {
 						usedWords.push_back(temp);
 						break;
 					}
+					else { //remover palavras que nao sao validas para acelerar a proxima pesquisa
+						//dictionary[index].getWords().erase(dictionary[index].getWords().begin()+i);
+						//i--;
+					}
+
 				}
 			}
 		}
@@ -323,9 +333,9 @@ int main()
 	}
 
 	if (playerNumber == 1)
-		play(palavra, dictionary, themeIndex, 1);
+		play(palavra, dictionary[themeIndex], 1);
 	else
-		play(palavra, dictionary, themeIndex, 2);
+		play(palavra, dictionary[themeIndex], 2);
 
 	return 0;
 }
