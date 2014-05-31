@@ -54,12 +54,11 @@ bool play(string word, Theme theme, int player) {
 	bool win = false;
 	vector<string> dictionary = theme.getWords();
 	string tryWord, check[word.size()]; //tryWord - tentativa para adivinhar a palavra // check - guarda os resultado da tentativa com B, W ou _
-	int play = 1, matchingLetters = 0;  //play - numero da jogada, termina ao fim de 10 //match - numero de letras certas, termina quando for igual ao tamanho da palavra
+	unsigned int play = 1, matchingLetters = 0;  //play - numero da jogada, termina ao fim de 10 //match - numero de letras certas, termina quando for igual ao tamanho da palavra
 	map<char,int> letterCounter; //guarda a quantidade de cada letra. ex: canas - c=1; a=2 etc.
 
 	//Usado apenas quando joga o computador:
 	string existingLetters, nonExistingLetters; //letras existentes e nao existentes na palavra a adivinhar
-	vector<string> usedWords = vector<string>(); //palavras ja usadas
 
 	//inicializar check com espacos
 	for(size_t i = 0; i < word.size(); i++){
@@ -96,15 +95,21 @@ bool play(string word, Theme theme, int player) {
 
 					if (temp.size() == word.size()) {
 						tryWord = temp;
-						usedWords.push_back(temp);
 
 						cout << "Computador encontrou: " << temp << endl << endl;
+
+						//remover palavras processadas para acelerar a proxima pesquisa
+						dictionary.erase(dictionary.begin()+i);
+						i--;
+
 						break;
 					}
-					else { //remover palavras que nao sao validas para acelerar a proxima pesquisa
-						//dictionary[index].getWords().erase(dictionary[index].getWords().begin()+i);
-						//i--;
-					}
+
+					//remover palavras processadas para acelerar a proxima pesquisa
+					dictionary.erase(dictionary.begin()+i);
+					i--;
+
+
 				}
 			}
 			else {
@@ -113,12 +118,7 @@ bool play(string word, Theme theme, int player) {
 					string temp = dictionary[i];
 					bool valid = true;
 
-					//verifica se a palavra ja foi usada antes
 					if (temp.size() == word.size()) {
-						for (size_t j = 0; j < usedWords.size(); j++) {
-							if (temp == usedWords[j])
-								valid = false;
-						}
 
 						//verifica se as letras existentes (mas que nao sabemos a posicao) estao presentes na palavra
 						for (size_t j = 0; j < existingLetters.size(); j++) {
@@ -154,14 +154,16 @@ bool play(string word, Theme theme, int player) {
 					if (valid) {
 						tryWord = temp;
 						cout << "Computador encontrou: " << tryWord << endl;
-						usedWords.push_back(temp);
+
+						//remover palavras processadas para acelerar a proxima pesquisa
+						dictionary.erase(dictionary.begin()+i);
+						i--;
 						break;
 					}
-					else { //remover palavras que nao sao validas para acelerar a proxima pesquisa
-						//dictionary[index].getWords().erase(dictionary[index].getWords().begin()+i);
-						//i--;
-					}
 
+					//remover palavras processadas para acelerar a proxima pesquisa
+					dictionary.erase(dictionary.begin()+i);
+					i--;
 				}
 			}
 		}
