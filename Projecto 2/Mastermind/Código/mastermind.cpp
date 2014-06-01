@@ -49,7 +49,7 @@ vector<Theme> readDictionary() {
 	return themes;
 }
 
-bool play(string word, Theme theme, int player) {
+void play(string word, Theme theme, int player) {
 
 	bool win = false;
 	vector<string> dictionary = theme.getWords();
@@ -311,7 +311,7 @@ int main()
 		break;
 
 	case 3:
-		for(int i = 0; i < dictionary.size(); i++){
+		for(size_t i = 0; i < dictionary.size(); i++){
 			cout << i+1 <<": "<< dictionary[i].getName()<<endl;
 		}
 
@@ -334,10 +334,7 @@ int main()
 		break;
 	}
 
-	if (playerNumber == 1)
-		play(palavra, dictionary[themeIndex], 1);
-	else
-		play(palavra, dictionary[themeIndex], 2);
+	play(palavra, dictionary[themeIndex], playerNumber);
 
 	return 0;
 }
